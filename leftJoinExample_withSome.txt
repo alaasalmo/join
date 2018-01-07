@@ -1,5 +1,7 @@
 In DataFrame, the join is join, left_outer, right_outer
 
+In Rdd, rdd1.leftOuterJoin(rdd2)
+
 
 Example(1):
 
