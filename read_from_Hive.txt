@@ -1,0 +1,33 @@
+1. Define HiveContext 
+   import org.apache.spark.sql.hive._
+   val hc = new HiveContext(sc)
+   
+2. Move to the database
+   hc.sql("use flights")
+   hc.sql("show tables").show
+   
+3. Read Flights and Planes dataFrame
+   val flightsDF= hc.table("flights")
+   val planesDF = hc.table("planes2")  
+
+4. Sort the flights dataframe using distance to find the longest flight, do a take to look at the
+   distance of the longest flight  
+  
+   Check the dataframesflightsDF.select($"FlightNum",$"Distance").order(Desc($"Distance").show(5)
+   flightsDF.show(5) 
+   planesDF.show(5)   
+   planesDF.select("tailnum").count()
+ 
+ 
+5. Filter all flights on the longest flight distance, and return the tail numbers of those flights
+
+   flightsDF.filter($"distance"===4962).select($"TailNum").show
+   flightsDF.filter($"distance"===4962).select($"TailNum").distinct.show 
+
+6. Join the tailnums to the planes RDD to get the models of the airplanes
+
+   flightsDF.join(planesDF, flightsDF("tailnum")===planesDF("tailnum"),"inner").select($"model").show(10) 
+
+7. Perform a count to find the most common airplane models
+
+   planesDF.groupBy($"model").count().show(10)

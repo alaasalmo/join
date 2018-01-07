@@ -1,0 +1,55 @@
+
+1. Read flights:
+
+   val flightsRDD= sc.textFile("/tmp/flights.csv")
+   val flightDataRDD= flightsRDD.zipWithIndex.filter{case (x,i)=> i!=0}.map{case (x,i)=>x}.map(line=>line.split("\\,"))
+   val flightPairRDD=flightDataRDD.map(x=>(x(5),x(6)))
+   flightPairRDD.partitions.size
+   
+2. Read carriers:
+   val carriersRDD = sc.textFile("/tmp/carriers.csv")
+   val carriersDataRDD = carriersRDD.map(line => line.replace("\"","")).zipWithIndex.filter{case (x,i)=> i!=0}.map{case (x,i)=>x}.map(line=>line.split("\\,"))
+   val carriersPairRDD = carriersDataRDD.map(col=>(col(0),col(1)))
+   carriersPairRDD.partitions.size
+   
+3. Join
+   val joinedRdd = flightPairRDD.join(carriersPairRDD)
+   
+   
+Test(1):
+
+val flightsRDD= sc.textFile("/tmp/flights.csv",4)
+val flightDataRDD= flightsRDD.zipWithIndex.filter{case (x,i)=> i!=0}.map{case (x,i)=>x}.map(line=>line.split("\\,"))
+val flightPairRDD=flightDataRDD.map(x=>(x(5),x(6)))
+
+
+
+val carriersRDD = sc.textFile("/tmp/carriers.csv",4)
+val carriersDataRDD = carriersRDD.map(line => line.replace("\"","")).zipWithIndex.filter{case (x,i)=> i!=0}.map{case (x,i)=>x}.map(line=>line.split("\\,"))
+val carriersPairRDD = carriersDataRDD.map(col=>(col(0),col(1)))
+   
+val joinedRdd = flightPairRDD.join(carriersPairRDD)
+joinedRdd.collect
+
+Total: 4+4+4 = 12
+
+
+Test(2):
+
+val flightPairRDD2=flightPairRDD.repartition(10)
+val joinedRdd = flightPairRDD2.join(carriersPairRDD)
+joinedRdd.count
+
+Total: 28 (4+4+10+10)
+
+4. Find the number of flights using the 10 partition RDD by unique carrier and sort the
+
+   
+   val flightPairRDD=flightDataRDD.map(x=>(x(5),1))
+   val flightPairRDD2=flightPairRDD.repartition(10)
+   val joinedRdd = flightPairRDD2.join(carriersPairRDD)
+   val joinedRdd2=joinedRdd.map((x,y)=>y)
+   
+   val flightReduced=joinedRdd2.reduceByKey(((x,y)=>x+y)).sortByKey()
+   flightReduced.collect
+
