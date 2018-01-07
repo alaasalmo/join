@@ -1,3 +1,6 @@
+In DataFrame, the join is join, left_outer, right_outer
+
+
 Example(1):
 
 val a: List[Any] = List["33","44"]
